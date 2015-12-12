@@ -1,0 +1,11 @@
+*.o
+energymonitor
+*~
+*.svg
+.d
+*.sh
+energymonitor.conf.prod
+energymonitor.conf.git
+energymonitor.conf.test
+nbproject
+
