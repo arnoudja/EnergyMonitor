@@ -2,6 +2,7 @@
 #include "EnergyData.h"
 #include "P1Monitor.h"
 #include "EnergyMonitorConfig.h"
+#include "PvOutput.h"
 
 #include <iomanip>
 #include <sstream>
@@ -17,7 +18,6 @@ namespace
 }
 
 EnergyData::EnergyData(const EnergyMonitorConfig& config, const P1Monitor& monitor) :
-    myPvOutput(config),
     myCsvDataFileName(config.getValue(cCsvDataFileConfigName)),
     myTimestamp(0),
     myTotalImportOffPeak(.0),
@@ -80,7 +80,7 @@ EnergyData::~EnergyData()
 {
 }
 
-void EnergyData::update(const P1Monitor& monitor)
+void EnergyData::update(const P1Monitor& monitor, PvOutput& pvOutput)
 {
     if (!myIsTestdata)
     {
@@ -91,7 +91,7 @@ void EnergyData::update(const P1Monitor& monitor)
             ofstream csvDataFile(myCsvDataFileName.c_str(), ios::out | ios::app);
             writeDayCSV(csvDataFile);
 
-            uploadToPVOutput();
+            uploadToPVOutput(pvOutput);
 
             startNewDay();
         }
@@ -243,7 +243,7 @@ bool EnergyData::readDayCSV(istream& stream)
     return result;
 }
 
-void EnergyData::uploadToPVOutput()
+void EnergyData::uploadToPVOutput(PvOutput& pvOutput)
 {
     double dayImportPeak    = myTotalImportPeak - myStartImportPeak;
     double dayImportOffPeak = myTotalImportOffPeak - myStartImportOffPeak;
@@ -251,10 +251,10 @@ void EnergyData::uploadToPVOutput()
     double dayExportOffPeak = myTotalExportOffPeak - myStartExportOffPeak;
     double dayExportTotal   = dayExportPeak + dayExportOffPeak;
 
-    myPvOutput.outputEnergy(myStartTime,
-                            static_cast<int>(1000. * dayExportTotal),
-                            static_cast<int>(1000. * dayImportPeak),
-                            static_cast<int>(1000. * dayImportOffPeak));
+    pvOutput.outputEnergy(myStartTime,
+                          static_cast<int>(1000. * dayExportTotal),
+                          static_cast<int>(1000. * dayImportPeak),
+                          static_cast<int>(1000. * dayImportOffPeak));
 }
 
 double EnergyData::getDoubleValue(const string& value)

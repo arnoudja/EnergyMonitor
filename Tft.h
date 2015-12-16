@@ -11,6 +11,7 @@
 class EnergyMonitorConfig;
 class EnergyData;
 class OmnikGetStats;
+class PvOutput;
 
 class Tft
 {
@@ -18,7 +19,7 @@ public:
     Tft(const EnergyMonitorConfig& config);
     virtual ~Tft();
 
-    void displayEnergyData(const EnergyData& energyData, const OmnikGetStats& solarData);
+    void displayEnergyData(const EnergyData& energyData, const OmnikGetStats& solarData, PvOutput& pvOutput);
 
 private:
     typedef cairo_surface_t* TDisplaySurface;
@@ -32,7 +33,7 @@ private:
 
     void displayEnergyTotals(cairo_t* surface, int x, int y, const EnergyData& energyData, const OmnikGetStats& solarData);
     void displayCurrentValues(cairo_t* surface, int x, int y, const EnergyData& energyData, const OmnikGetStats& solarData);
-    void displayEnergySummary(cairo_t* surface, int x, int y, const EnergyData& energyData, const OmnikGetStats& solarData);
+    void displayEnergySummary(cairo_t* surface, int x, int y, const EnergyData& energyData, const OmnikGetStats& solarData, PvOutput& pvOutput);
     void displayStatisticValues(cairo_t* surface, int x, int y, const EnergyData& energyData, const OmnikGetStats& solarData);
     
     void clear(cairo_t* surface);

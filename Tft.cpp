@@ -4,6 +4,7 @@
 #include "EnergyMonitorConfig.h"
 #include "EnergyData.h"
 #include "OmnikGetStats.h"
+#include "PvOutput.h"
 
 #include <sstream>
 #include <unistd.h>
@@ -73,7 +74,7 @@ Tft::~Tft()
     gTftInstance = NULL;
 }
 
-void Tft::displayEnergyData(const EnergyData& energyData, const OmnikGetStats& solarData)
+void Tft::displayEnergyData(const EnergyData& energyData, const OmnikGetStats& solarData, PvOutput& pvOutput)
 {
     // Button 1 display
     cairo_t* display1 = cairo_create(myBufferSurface[0]);
@@ -85,8 +86,13 @@ void Tft::displayEnergyData(const EnergyData& energyData, const OmnikGetStats& s
     // Button 2 display
     cairo_t* display2 = cairo_create(myBufferSurface[1]);
     clear(display2);
-    displayEnergySummary(display2, 10, 10, energyData, solarData);
+    displayEnergySummary(display2, 10, 10, energyData, solarData, pvOutput);
     cairo_destroy(display2);
+
+    // Button 3 display
+    cairo_t* display3 = cairo_create(myBufferSurface[2]);
+    clear(display3);
+    cairo_destroy(display3);
 
     // Button 4 display
     cairo_t* display4 = cairo_create(myBufferSurface[3]);
@@ -349,21 +355,72 @@ void Tft::displayCurrentValues(cairo_t* surface, int x, int y, const EnergyData&
     table.drawTable(surface, x, y);
 }
 
-void Tft::displayEnergySummary(cairo_t* surface, int x, int y, const EnergyData& energyData, const OmnikGetStats& solarData)
+void Tft::displayEnergySummary(cairo_t* surface, int x, int y, const EnergyData& energyData, const OmnikGetStats& solarData, PvOutput& pvOutput)
 {
     DisplayTable table;
 
-    // Row texts today
-    table.setText(0, 0, 0, "Today");
+    // Row texts current
+    table.setText(0, 0, 0, "Current");
     table.setText(1, 0, 0, "Solar");
     table.setText(1, 0, 1, "Usage");
     table.setText(1, 0, 2, "Net");
+    
+    // Row texts today
+    table.setText(0, 1, 0, "Today");
+    table.setText(1, 1, 0, "Solar");
+    table.setText(1, 1, 1, "Usage");
+    table.setText(1, 1, 2, "Net");
 
+    // Row texts yesterday
+    table.setText(0, 2, 0, "Yesterday");
+    table.setText(1, 2, 0, "Solar");
+    table.setText(1, 2, 1, "Usage");
+    table.setText(1, 2, 2, "Net");
+
+    // Row texts month
+    table.setText(0, 3, 0, "Month");
+    table.setText(1, 3, 0, "Solar");
+    table.setText(1, 3, 1, "Usage");
+    table.setText(1, 3, 2, "Net");
+
+    // Row texts year
+    table.setText(0, 4, 0, "Year");
+    table.setText(1, 4, 0, "Solar");
+    table.setText(1, 4, 1, "Usage");
+    table.setText(1, 4, 2, "Net");
+
+    // Current power
+    double consumption = solarData.getPower() + 1000. * energyData.getNet();
+    table.setText(2, 0, 0, getWText(static_cast<int>(solarData.getPower())), true);
+    table.setText(2, 0, 1, getWText(static_cast<int>(consumption)), true);
+    table.setText(2, 0, 2, getWText(static_cast<int>(1000. * energyData.getNet())), true);
+
+    // Today
     double usage = energyData.getTodayNet() + solarData.getGeneratedToday();
+    table.setText(2, 1, 0, getKwhText(solarData.getGeneratedToday()), true);
+    table.setText(2, 1, 1, getKwhText(usage), true);
+    table.setText(2, 1, 2, getKwhText(energyData.getTodayNet()), true);
 
-    table.setText(2, 0, 0, getKwhText(solarData.getGeneratedToday()), true);
-    table.setText(2, 0, 1, getKwhText(usage), true);
-    table.setText(2, 0, 2, getKwhText(energyData.getTodayNet()), true);
+    // Yesterday
+    double generated = pvOutput.getGeneratedYesterday();
+    double consumed  = pvOutput.getConsumedYesterday();
+    table.setText(2, 2, 0, getKwhText(generated), true);
+    table.setText(2, 2, 1, getKwhText(consumed), true);
+    table.setText(2, 2, 2, getKwhText(consumed - generated), true);
+
+    // Month to day
+    generated = pvOutput.getGeneratedMonth() + solarData.getGeneratedToday();
+    consumed  = pvOutput.getConsumedMonth() + usage;
+    table.setText(2, 3, 0, getKwhText(generated), true);
+    table.setText(2, 3, 1, getKwhText(consumed), true);
+    table.setText(2, 3, 2, getKwhText(consumed - generated), true);
+
+    // Year to day
+    generated = pvOutput.getGeneratedYear() + solarData.getGeneratedToday();
+    consumed  = pvOutput.getConsumedYear() + usage;
+    table.setText(2, 4, 0, getKwhText(generated), true);
+    table.setText(2, 4, 1, getKwhText(consumed), true);
+    table.setText(2, 4, 2, getKwhText(consumed - generated), true);
 
     table.drawTable(surface, x, y);
 }
