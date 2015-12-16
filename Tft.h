@@ -5,12 +5,14 @@
 #include <linux/fb.h>
 #include <cairo/cairo.h>
 #include <string>
+#include <vector>
 
 #define NR_SCREEN_BUFFERS   4
 
 class EnergyMonitorConfig;
 class EnergyData;
 class OmnikGetStats;
+class PvOutput;
 
 class Tft
 {
@@ -18,7 +20,7 @@ public:
     Tft(const EnergyMonitorConfig& config);
     virtual ~Tft();
 
-    void displayEnergyData(const EnergyData& energyData, const OmnikGetStats& solarData);
+    void displayEnergyData(const EnergyData& energyData, const OmnikGetStats& solarData, PvOutput& pvOutput);
 
 private:
     typedef cairo_surface_t* TDisplaySurface;
@@ -32,9 +34,14 @@ private:
 
     void displayEnergyTotals(cairo_t* surface, int x, int y, const EnergyData& energyData, const OmnikGetStats& solarData);
     void displayCurrentValues(cairo_t* surface, int x, int y, const EnergyData& energyData, const OmnikGetStats& solarData);
-    void displayEnergySummary(cairo_t* surface, int x, int y, const EnergyData& energyData, const OmnikGetStats& solarData);
+    void displayEnergySummary(cairo_t* surface, int x, int y, const EnergyData& energyData, const OmnikGetStats& solarData, PvOutput& pvOutput);
     void displayStatisticValues(cairo_t* surface, int x, int y, const EnergyData& energyData, const OmnikGetStats& solarData);
-    
+
+    double getTodayExtimate() const;
+    double getYesterdayEstimate() const;
+    double getMonthEstimate() const;
+    double getYearEstimate() const;
+
     void clear(cairo_t* surface);
     void apply();
 
@@ -53,8 +60,11 @@ private:
     static std::string getKwhText(double kwh);
     static std::string getWText(int w);
     static std::string getAText(int a);
+    static std::string getPercText(double fraction);
 
 private:
+    std::vector<int> myMonthEstimates;
+
     int myFramebufferDevice;
     fb_var_screeninfo myOriginalScreenInfo;
     long myScreenSize;

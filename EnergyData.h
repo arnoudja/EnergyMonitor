@@ -2,7 +2,6 @@
 #ifndef ENERGYDATA_H
 #define	ENERGYDATA_H
 
-#include "PvOutput.h"
 #include "ValueRange.h"
 
 #include <string>
@@ -11,6 +10,7 @@
 
 class EnergyMonitorConfig;
 class P1Monitor;
+class PvOutput;
 
 class EnergyData
 {
@@ -18,7 +18,7 @@ public:
     EnergyData(const EnergyMonitorConfig& config, const P1Monitor& monitor);
     virtual ~EnergyData();
 
-    void update(const P1Monitor& monitor);
+    void update(const P1Monitor& monitor, PvOutput& pvOutput);
 
     double getTotalImportOffPeak() const        { return myTotalImportOffPeak; }
     double getTotalImportPeak() const           { return myTotalImportPeak; }
@@ -73,7 +73,7 @@ private:
     void startNewDay();
     void writeDayCSV(std::ostream& stream);
     bool readDayCSV(std::istream& stream);
-    void uploadToPVOutput();
+    void uploadToPVOutput(PvOutput& pvOutput);
 
     static double getDoubleValue(const std::string& value);
     static int    getIntValue(const std::string& value);
@@ -83,7 +83,6 @@ private:
     static bool sameDay(time_t timestamp1, time_t timestamp2);
     
 private:
-    PvOutput    myPvOutput;
     std::string myCsvDataFileName;
 
     time_t myTimestamp;

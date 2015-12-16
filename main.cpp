@@ -2,6 +2,7 @@
 #include "P1Monitor.h"
 #include "EnergyData.h"
 #include "OmnikGetStats.h"
+#include "PvOutput.h"
 #include "EnergyMonitorConfig.h"
 #include "Tft.h"
 
@@ -33,6 +34,7 @@ int main(int argc, char** argv)
 
     EnergyMonitorConfig config;
     P1Monitor monitor(config);
+    PvOutput pvOutput(config);
 
     if (!monitor.init())
     {
@@ -49,7 +51,7 @@ int main(int argc, char** argv)
         {
             if (monitor.update())
             {
-                energyData.update(monitor);
+                energyData.update(monitor, pvOutput);
             }
             else
             {
@@ -58,7 +60,7 @@ int main(int argc, char** argv)
 
             solarData.updateStats();
 
-            display.displayEnergyData(energyData, solarData);
+            display.displayEnergyData(energyData, solarData, pvOutput);
 
             if (config.isTestMode())
             {
