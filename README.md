@@ -25,7 +25,12 @@ This application uses the following hardware:
 	sudo apt-get install libcairo2-dev
 * wiringPi must be installed, see https://github.com/WiringPi/WiringPi
 * Clone the source code with git clone https://github.com/arnoudja/EnergyMonitor.git
-* Edit energymonitor.conf with your API key, SystemID and Omnik configuration
+* Edit energymonitor.conf with your API key, SystemID and Omnik configuration and your estimates
 * do a make all
 * Grant access to the ftdi device files or run energymonitor as root
+
+## Usage
+
+Press one of the display buttons to activate a view. The display will automatically
+turn off after 60 seconds.
 
