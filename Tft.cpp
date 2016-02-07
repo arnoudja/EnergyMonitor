@@ -427,7 +427,11 @@ void Tft::displayEnergySummary(cairo_t* surface, int x, int y, const EnergyData&
     table.setText(2, 1, 0, getKwhText(solarData.getGeneratedToday()), true);
     table.setText(2, 1, 1, getKwhText(usage), true);
     table.setText(2, 1, 2, getKwhText(energyData.getTodayNet()), true);
-    table.setText(3, 1, 0, getPercText(solarData.getGeneratedToday() / getTodayExtimate()), true);
+    table.setText(3, 1, 0, getPercText(solarData.getGeneratedToday() / getTodayExtimate()) + " target", true);
+    if (usage > .0)
+    {
+        table.setText(3, 1, 1, getPercText(solarData.getGeneratedToday() / usage) + " usage", true);
+    }
 
     // Yesterday
     double generated = pvOutput.getGeneratedYesterday();
@@ -435,7 +439,11 @@ void Tft::displayEnergySummary(cairo_t* surface, int x, int y, const EnergyData&
     table.setText(2, 2, 0, getKwhText(generated), true);
     table.setText(2, 2, 1, getKwhText(consumed), true);
     table.setText(2, 2, 2, getKwhText(consumed - generated), true);
-    table.setText(3, 2, 0, getPercText(generated / getYesterdayEstimate()), true);
+    table.setText(3, 2, 0, getPercText(generated / getYesterdayEstimate()) + " target", true);
+    if (consumed > .0)
+    {
+        table.setText(3, 2, 1, getPercText(generated / consumed) + " usage", true);
+    }
 
     // Month to day
     generated = pvOutput.getGeneratedMonth() + solarData.getGeneratedToday();
@@ -443,7 +451,11 @@ void Tft::displayEnergySummary(cairo_t* surface, int x, int y, const EnergyData&
     table.setText(2, 3, 0, getKwhText(generated), true);
     table.setText(2, 3, 1, getKwhText(consumed), true);
     table.setText(2, 3, 2, getKwhText(consumed - generated), true);
-    table.setText(3, 3, 0, getPercText(generated / getMonthEstimate()), true);
+    table.setText(3, 3, 0, getPercText(generated / getMonthEstimate()) + " target", true);
+    if (consumed > .0)
+    {
+        table.setText(3, 3, 1, getPercText(generated / consumed) + " usage", true);
+    }
 
     // Year to day
     generated = pvOutput.getGeneratedYear() + solarData.getGeneratedToday();
@@ -451,7 +463,11 @@ void Tft::displayEnergySummary(cairo_t* surface, int x, int y, const EnergyData&
     table.setText(2, 4, 0, getKwhText(generated), true);
     table.setText(2, 4, 1, getKwhText(consumed), true);
     table.setText(2, 4, 2, getKwhText(consumed - generated), true);
-    table.setText(3, 4, 0, getPercText(generated / getYearEstimate()), true);
+    table.setText(3, 4, 0, getPercText(generated / getYearEstimate()) + " target", true);
+    if (consumed > .0)
+    {
+        table.setText(3, 4, 1, getPercText(generated / consumed) + " usage", true);
+    }
 
     table.drawTable(surface, x, y);
 }
